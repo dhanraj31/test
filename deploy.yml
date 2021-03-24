@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: httpd1
-        image: 192.168.182.138:8081/test/httpd1
+        image: 192.168.182.145:8081/test/httpd1
         ports:
         - containerPort: 80
       imagePullSecrets:
