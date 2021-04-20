@@ -1,0 +1,27 @@
+FROM microsoft/dotnet:2.1-sdk AS build
+
+# copy everything else and build app
+COPY . ./opt/app
+WORKDIR /opt/app
+# RUN dotnet restore
+RUN dotnet publish -o out /p:PublishWithAspNetCoreTargetManifest="false"
+
+FROM mcr.microsoft.com/dotnet/core/sdk:2.1 As tools-install
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-sos
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-trace
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-counters
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-dump
+RUN dotnet tool install --tool-path /dotnetcore-tools dotnet-gcdump
+
+
+FROM microsoft/dotnet:2.1-aspnetcore-runtime
+#RUN dotnet tool install --global dotnet-dump
+
+#ENV PATH $PATH:/root/.dotnet/tools
+ENV ASPNETCORE_URLS http://+:5075
+# ENV ASPNETCORE_ENVIRONMENT Development
+WORKDIR /app
+COPY --from=build /opt/app/out ./
+ENTRYPOINT ["dotnet", "SocialJusticeAPIs.dll"]
+
+ 
