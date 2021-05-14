@@ -1,0 +1,46 @@
+Prometheus and grafana ( monitoring tools)
+
+
+1) install helm , 
+wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz
+sudo mv linux-amd64/helm /usr/local/bin
+
+2) create storage class and pv of 2 and 8 gb
+
+helm ls -n prometheus
+helm inspect values stable/prometheus >> /mnt/prometheus.values
+helm install --generate-name stable/prometheus -f /mnt/prometheus.values -n prometheus
+vim /mnt/prometheus.values
+change service type in 930 line NodePort & nodePort: 32322
+kubectl get pod -n prometheus
+
+3) create a pv of 8Gb
+helm inspect values stable/grafana >> /mnt/grafana.values
+helm install --generate-name stable/grafana -f /mnt/grafana.values -n grafana
+vim /mnt/grafana.values
+persistence =true adminpassword and service type NodePort nodePort: 32323
+
+helm uninstall promnetheus098765 -n prometheus
+
+------------------------------------------------------------------------------
+EFK stack ( elastice filebeat kibana logs tools)
+
+Install Helm on server
+
+created on pv 30 GB.
+
+create ns 
+
+helm inspect values elastice/elasticsearch -f /mnt/elastic.values -n efk
+
+helm install elasticsearch elastice/elasticsearch -f /mnt/elastic.values -n efk
+
+open file /mnt/elastic.values and changed replicas 1 to minimum master node 1
+
+helm inspect values elastic/kibana -f /mnt/kibana.values -n efk
+
+Changed service in Nodeport
+
+helm install kibana elastic/kibana -f /mnt/kibana.values -n efk
+
+helm install filebeat elastic/filebeat -n efk
