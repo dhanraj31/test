@@ -1,0 +1,99 @@
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: social-justice
+  labels:
+    type: local
+spec:
+  storageClassName: standard
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  persistentVolumeReclaimPolicy: Retain
+  hostPath:
+    path: "/mnt/socialjusticeapi"
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/hostname
+          operator: In
+          values:
+          - node6
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: social-justice
+  namespace: esewa-sdc-prod
+spec:
+  storageClassName: standard
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: esewa-sdc-prod-socialjusticeapi
+  namespace: esewa-sdc-prod
+spec:
+  type: NodePort
+  selector:
+    app: esewa-sdc-prod-socialjusticeapi
+  ports:
+    - port: 5075
+      targetPort: 5075
+      nodePort: 30198
+---
+apiVersion: apps/v1 # for versions before 1.9.0 use apps/v1beta2
+kind: Deployment
+metadata:
+  name: esewa-sdc-prod-socialjusticeapi
+  namespace: esewa-sdc-prod
+spec:
+  selector:
+    matchLabels:
+      app: esewa-sdc-prod-socialjusticeapi 
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: esewa-sdc-prod-socialjusticeapi 
+    spec:
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - node6
+      containers:
+      - name: esewa-sdc-prod-socialjusticeapi 
+        image: 10.44.85.80:8082/esewa-production/socialjusticeapi:${BUILD_TAG}
+        ports:
+        - containerPort: 5075
+        env:
+        - name: ASPNETCORE_ENVIRONMENT
+          value: "sdc_esewa_prodparallel"
+        - name: TZ
+          value: "Asia/Kolkata"
+        volumeMounts:
+        - name: socialjusticeapi
+          mountPath: /mnt/
+      volumes:
+      - name: socialjusticeapi
+        persistentVolumeClaim:
+         claimName: social-justice
+      imagePullSecrets:
+        - name: jfrog.artifactory
+  strategy:
+    type: Recreate
+---
