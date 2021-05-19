@@ -1,0 +1,17 @@
+pipeline {
+    agent any
+    stages {
+        stage("clone code"){
+            steps{
+               git 'https://github.com/dhanraj31/gitl.git'
+            }
+        }
+        stage("build code"){
+            steps{
+              sh "mvn -Dmaven.test.failure.ignore=true install"
+            }
+        }
+        
+        stage("deploy"){
+            steps{
+                 sh "cp -r webapp/target/webapp.war /var/lib/tomcat8/webapps/ROOT"
