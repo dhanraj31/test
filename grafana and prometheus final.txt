@@ -1,0 +1,30 @@
+version: "2.2"
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    container_name: monitoring_grafana
+    restart: unless-stopped
+    environment:
+      - GF_SECURITY_ADMIN_USER=grafanaadmin
+      - GF_SECURITY_ADMIN_PASSWORD=gr@fna@321#
+    volumes:
+      - gdata3:/var/lib/grafana
+    ports:
+      - 3020:3000
+volumes:
+  gdata3:
+    driver: local
+-----------------
+1) install helm , 
+wget https://get.helm.sh/helm-v3.4.1-linux-amd64.tar.gz
+sudo mv linux-amd64/helm /usr/local/bin
+
+2) create storage class and pv of 2 and 8 gb
+
+helm ls -n prometheus
+helm inspect values stable/prometheus >> /mnt/prometheus.values
+helm install --generate-name stable/prometheus -f /mnt/prometheus.values -n prometheus
+vim /mnt/prometheus.values
+change service type in 930 line NodePort & nodePort: 32322
+kubectl get pod -n prometheus
