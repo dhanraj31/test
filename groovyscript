@@ -1,17 +1,26 @@
-pipeline {
-    agent any
-    stages {
-        stage("clone code"){
-            steps{
-               git 'https://github.com/dhanraj31/gitl.git'
-            }
-        }
-        stage("build code"){
-            steps{
-              sh "mvn -Dmaven.test.failure.ignore=true install"
-            }
-        }
-        
-        stage("deploy"){
-            steps{
-                 sh "cp -r webapp/target/webapp.war /var/lib/tomcat8/webapps/ROOT"
+node () {
+    stage('Git Checkout') {
+        git branch: 'master', credentialsId: 'Git_cred_ESewa', url: 'http://52.172.51.186/PSeGS/Verification-Module-API.git'
+    }
+    
+    stage('Build Docker Image') {
+        sh "docker build -t verification:${BUILD_TAG} ./HomeDataCorrection/"
+        sh "docker tag verification:${BUILD_TAG} esewajfrog.psegs.in/verification-module-api/verification:latest"
+    }
+
+stage('Push Images to Artifactory')
+        rtDockerPush(
+                serverId: "esewajfrog",
+                image: 'esewajfrog.psegs.in/verification-module-api/verification:latest',
+                targetRepo: 'verification-module-api',
+                properties: 'project-name=Esewa_verification;status=stable'
+                )
+                
+stage('Deploy to kubernetes Cluster'){
+         withCredentials([file(credentialsId: 'esewaaks_prod', variable: 'esewaaks_prod')]) {
+    // some block
+     sh 'kubectl rollout restart deployment esewa-aks-prod-verification -n verification --kubeconfig=${esewaaks_prod}'
+     
+}
+}
+}
