@@ -1,0 +1,142 @@
+before_script:
+  - docker info
+ 
+deploy_develop: 
+      
+  script:    
+          
+    - echo "apigateway:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./ApiGateway/
+    - docker rm -f apigateway
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name apigateway --restart always -p 5000:5000 apigateway:v$CI_JOB_ID 
+    #- docker network connect --ip 172.18.0.3 dockertestnet apigateway
+    
+    - echo "authcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./AuthCoreApi/
+    - docker rm -f authcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name authcoreapi --restart always -p 5001:5001 authcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.4 dockertestnet authcoreapi
+    
+    - echo "b2cservicescoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./B2CServicesCoreAPI/
+    - docker rm -f b2cservicescoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name b2cservicescoreapi --restart always -p 5019:5019 b2cservicescoreapi:v$CI_JOB_ID
+    
+    #- docker network connect --ip 172.18.0.5 dockertestnet b2cservicecoreapi
+    
+    - echo "commonapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./CommonApi/
+    - docker rm -f commonapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name commonapi --restart always -p 5015:5015 commonapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.6 dockertestnet commonapi
+    
+    - echo "dprcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./DPRCoreApi/
+    - docker rm -f dprcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name dprcoreapi --restart always -p 5013:5013 dprcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.7 dockertestnet dprcoreapi
+    
+    - echo "documentservicemanagement:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./DocumentServiceManagement/
+    - docker rm -f documentservicemanagement
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name documentservicemanagement --restart always -p 5005:5005 documentservicemanagement:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.8 dockertestnet documentservicemanagement
+    
+    - echo "esewacoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./ESewaCoreApi/
+    - docker rm -f esewacoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name esewacoreapi --restart always -p 5002:5002 esewacoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.9 dockertestnet esewacoreapi
+    
+    - echo "healthcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./HealthCoreApi/
+    - docker rm -f healthcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name healthcoreapi --restart always -p 5006:5006 healthcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.10 dockertestnet healthcoreapi
+    
+    - echo "homecoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./HomeCoreApi/
+    - docker rm -f homecoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name homecoreapi --restart always -p 5009:5009 homecoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.11 dockertestnet homecoreapi
+    
+    - echo "labourcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./LabourCoreApi/
+    - docker rm -f labourcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name labourcoreapi --restart always -p 5016:5016 labourcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.12 dockertestnet labourcoreapi
+    
+    - echo "lotterycoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./LotteryCoreApi/
+    - docker rm -f lotterycoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name lotterycoreapi --restart always -p 5003:5003 lotterycoreapi:v$CI_JOB_ID 
+    #- docker network connect --ip 172.18.0.13 dockertestnet lotterycoreapi
+    
+    - echo "panchayatcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./PanchayatCoreApi/
+    - docker rm -f panchayatcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name panchayatcoreapi --restart always -p 5007:5007 panchayatcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.14 dockertestnet panchayatcoreapi
+    
+    - echo "personnelcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./PersonnelCoreApi/
+    - docker rm -f personnelcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name personnelcoreapi --restart always -p 5008:5008 personnelcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.15 dockertestnet personnelcoreapi
+    
+    - echo "pudacoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./PudaCoreApi/
+    - docker rm -f pudacoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name pudacoreapi --restart always -p 5004:5004 pudacoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.16 dockertestnet pudacoreapi
+    
+    - echo "skmcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SKMCoreApi/
+    - docker rm -f skmcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name skmcoreapi --restart always -p 5014:5014 skmcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.17 dockertestnet skmcoreapi
+    
+    - echo "socialsecuritycoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SocialSecurityCoreApi/
+    - docker rm -f socialsecuritycoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name socialsecuritycoreapi --restart always -p 5011:5011 socialsecuritycoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.18 dockertestnet socialsecuritycoreapi
+    
+    - echo "welfareofscbccoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./WelfareofSCBCCoreApi/
+    - docker rm -f welfareofscbccoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name welfareofscbccoreapi --restart always -p 5012:5012 welfareofscbccoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.19 dockertestnet welfareofscbcoreapi
+    
+    - echo "esewaadmin:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./eSewaAdmin/
+    - docker rm -f esewaadmin
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name esewaadmin --restart always -p 5018:5018 esewaadmin:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.20 dockertestnet esewaadmin
+    
+    - echo "externalcoreapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./ExternalServicesCoreApi/
+    - docker rm -f externalcoreapi
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name externalcoreapi --restart always -p 5017:5017 externalcoreapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.20 dockertestnet esewaadmin
+    # test commit 12
+    
+    #socialjusticeapi
+    #- echo "socialjusticeapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SocialJusticeAPIs/
+    #- docker rm -f socialjusticeapi
+    #- docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name socialjusticeapi --restart always -p 5075:5075 socialjusticeapi:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.20 dockertestnet esewaadmin
+    
+    #socialjusticeui
+ #   - echo "socialjusticeui:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SocialJusticeUI/
+ #   - docker rm -f socialjusticeui
+ #   - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name socialjusticeui --restart always -p 7015:7015 socialjusticeui:v$CI_JOB_ID
+    #- docker network connect --ip 172.18.0.20 dockertestnet esewaadmin
+
+    #esSewaHome
+    #- echo "esewahome:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./eSewaHome/
+    #- docker rm -f esewahome 
+    #- docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --name="esewahome" --restart=unless-stopped -p 5023:4200 -p 5021:80 esewahome:v$CI_JOB_ID
+
+    #homemarriageAPI
+    #- echo "homemarriageapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./HomeMarriageAPI/
+    #- docker rm -f homemarriageapi 
+    #- docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --name="homemarriageapi" --restart always -p 5022:5069 homemarriageapi:v$CI_JOB_ID    
+ 
+
+    #socialjusticecAPI
+    - echo "socialjusticeapi:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SocialJusticeAPIs/
+    - docker rm -f socialjusticeapi 
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name="socialjusticeapi" --restart always -p 5075:5075 socialjusticeapi:v$CI_JOB_ID    
+
+    #socialjusticecUI
+    - echo "socialjusticeui:v$CI_JOB_ID" | xargs -I {} docker build -t {} ./SocialJusticeUI/
+    - docker rm -f socialjusticeui
+    - docker run -e ASPNETCORE_ENVIRONMENT="$CI_COMMIT_REF_NAME" -e TZ="Asia/Kolkata" -d --net=host --name="socialjusticeui" --restart always -p 7015:7015 socialjusticeui:v$CI_JOB_ID    
+
+    
+  tags:    
+    - Production
+  only:
+    - Production
