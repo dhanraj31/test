@@ -1,0 +1,34 @@
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: local-storage
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+provisioner: kubernetes.io/no-provisioner
+reclaimPolicy: Delete
+---------------------------------
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: prom
+spec:
+    storageClassName: standard
+    capacity:
+     storage: 2Gi #Size of the volume
+    accessModes:
+      - ReadWriteOnce #type of access
+    hostPath:
+      path: "/mnt/data/prom1" #host location
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+    name: prom2
+spec:
+    storageClassName: standard
+    capacity:
+     storage: 8Gi #Size of the volume
+    accessModes:
+      - ReadWriteOnce #type of access
+    hostPath:
+      path: "/mnt/data/prom2" #host location
