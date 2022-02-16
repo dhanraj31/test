@@ -1,0 +1,70 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: eventmicrostlite
+  labels:
+    app: eventmicrostlite
+spec:
+  replicas: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: eventmicrostlite
+  template:
+    metadata:
+      labels:
+        app: eventmicrostlite
+    spec:
+      containers:
+        - name: eventmicrost
+          image: social27acr.azurecr.io/eventmicrost
+          ports:
+          - containerPort: 443
+          - containerPort: 81
+          resources:
+            limits:
+              memory: 8000Mi
+              cpu: 4000m
+            requests:
+              memory: 8000Mi
+              cpu: 4000m 
+          livenessProbe:
+            exec:
+              command : ["nc", "-vz", "0.0.0.0", "443"]
+            initialDelaySeconds: 20
+            timeoutSeconds: 630
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            exec:
+              command : ["nc", "-vz", "0.0.0.0", "443"]
+            initialDelaySeconds: 20
+            timeoutSeconds: 630
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 5
+      imagePullSecrets:
+      - name: apilite   
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      - effect: NoSchedule
+        key: azure.com/aci
+      affinity:
+        nodeAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            preference:
+              matchExpressions:
+              - key: type
+                operator: NotIn
+                values:
+                - virtual-kubelet
+      nodeSelector:
+        type: virtual-kubelet
+        
