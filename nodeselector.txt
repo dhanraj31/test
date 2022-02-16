@@ -1,0 +1,47 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: preprodui
+  labels:
+    app: preprodui
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1  
+  selector:
+    matchLabels:
+      app: preprodui
+  template:
+    metadata:
+      labels:
+        app: preprodui
+    spec:
+      containers:
+        - name: preprodui
+          image: social27acr.azurecr.io/preprodui
+          ports:
+          - containerPort: 443
+          resources:
+            limits:
+              memory: 1Gi
+              cpu: 1000m
+            requests:
+              memory: 700Mi
+              cpu: 500m
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            timeoutSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 20
+            timeoutSeconds: 60
+      nodeSelector:
+        agentpool: entpreprod
