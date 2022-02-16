@@ -1,0 +1,27 @@
+1) az aks nodepool add \
+--resource-group social27_k8s \
+--name mainapi \
+--enable-cluster-autoscaler \
+--kubernetes-version 1.20.9 \
+--cluster-name aks-s27-lite-api \
+--labels cluster=aks-s27-lite-api \
+--mode user \
+--labels name=mainapi \
+--max-pods 110 \
+--max-count 3 \
+--min-count 2 \
+--node-osdisk-size 256 \
+--node-vm-size Standard_D64as_v4 \
+--zones 1 2 3 \
+--vnet-subnet-id /subscriptions/72deed30-8019-44f1-aef0-c8714507136c/resourceGroups/rmS27Common/providers/Microsoft.Network/virtualNetworks/s27-lite/subnets/aks-lite-prod
+
+2) SSL secrete in k8s= kubectl create secret tls single-domain-admin-tls -n single-domain-admin --key private_key_2022.key --cert cert_2022.crt
+
+3) kubectl create secret docker-registry apilite \ --namespace api-lite \ --docker-server=social27acr.azurecr.io \ --docker-username=social27acr --docker-password=ZmL7ZLa=t8Lqi7YgMf2k30sKYBziY9wt
+
+4) kubectl get secret social27acr-auth  --namespace api-lite --output="jsonpath={.data.\.dockerconfigjson}" | base64 --decode
+
+5) nginx ingress upload:-
+nginx.ingress.kubernetes.io/proxy-body-size: "0"
+nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+
