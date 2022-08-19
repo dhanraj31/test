@@ -1,3 +1,12 @@
+update aks cluster with nodepools version and nodepools images version
+1 (a) az aks get-upgrades --resource-group social27_k8s--name s27-tableau-prod-api --output table 
+
+1 (b) az aks upgrade \
+    --resource-group social27_k8s\
+    --name s27-tableau-prod-api --kubernetes-version 1.23.8
+    
+
+
 1) az aks nodepool add \
 --resource-group social27_k8s \
 --name mainapi \
