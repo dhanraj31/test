@@ -1,3 +1,9 @@
+azure docker service connection secret ID url:-
+
+https://dev.azure.com/s27/Pro-events-Admin/_apis/serviceendpoint/endpoints?api-version=5.0-preview.2
+
+
+
 update aks cluster with nodepools version and nodepools images version
 1 (a) az aks get-upgrades --resource-group social27_k8s--name s27-tableau-prod-api --output table 
 
