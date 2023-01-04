@@ -2,6 +2,7 @@ azure docker service connection secret ID url:-
 
 https://dev.azure.com/s27/Pro-events-Admin/_apis/serviceendpoint/endpoints?api-version=5.0-preview.2
 
+kubectl scale  deployment.apps/pinmailservice --replicas=1 -n pre-prod-pinmail
 
 
 update aks cluster with nodepools version and nodepools images version
