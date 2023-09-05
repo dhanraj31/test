@@ -1,0 +1,89 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - release
+
+env:
+  REGISTRY_NAME: social27acr
+  CLUSTER_NAME: prod-smart-apps-aks
+  CLUSTER_RESOURCE_GROUP: social27_k8s
+  SOCKET_IMAGE: chat-socket-service
+  CONSUMER_IMAGE: chat-consumer-service
+  ETL_IMAGE: chat-etl-service
+  NAMESPACE: chat-service-lite
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish, and Deploy
+    runs-on: ubuntu-latest
+    environment: release
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      # Connect to Azure Container registry (ACR)
+      - uses: azure/docker-login@v1
+        with:
+          login-server: ${{ env.REGISTRY_NAME }}.azurecr.io
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+
+      # Container build and push to a Azure Container registry (ACR)
+      - name: Build and push socket-server
+        working-directory: ./socket-server
+        run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SOCKET_IMAGE }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SOCKET_IMAGE }}:${{ github.sha }}
+
+      # Container build and push to a Azure Container registry (ACR)
+      - name: Build and push chat-consumer
+        working-directory: ./rmq-consumer
+        run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONSUMER_IMAGE }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONSUMER_IMAGE }}:${{ github.sha }}
+      
+      # Container build and push to a Azure Container registry (ACR)
+      - name: Build and push etl-server
+        working-directory: ./py-etl-server
+        run: |
+          docker build . -t ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.ETL_IMAGE }}:${{ github.sha }}
+          docker push ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.ETL_IMAGE }}:${{ github.sha }}
+
+      # Set the target Azure Kubernetes Service (AKS) cluster.
+      - uses: azure/k8s-set-context@v1
+        with:
+          kubeconfig: ${{ secrets.PROD_KUBE_CONFIG }}
+        id: login
+
+      # Deploy app to AKS
+      - name: Deploy socket-server
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s/server-deployment.yaml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.SOCKET_IMAGE }}:${{ github.sha }}
+          namespace: ${{ env.NAMESPACE }}
+
+      # Deploy app to AKS
+      - name: Deploy chat-consumer
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s/consumer-deployment.yaml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.CONSUMER_IMAGE }}:${{ github.sha }}
+          namespace: ${{ env.NAMESPACE }}
+
+      # Deploy app to AKS
+      - name: Deploy etl-service
+        uses: azure/k8s-deploy@v1
+        with:
+          manifests: |
+            k8s/etl-deployment.yaml
+          images: |
+            ${{ env.REGISTRY_NAME }}.azurecr.io/${{ env.ETL_IMAGE }}:${{ github.sha }}
+          namespace: ${{ env.NAMESPACE }}
