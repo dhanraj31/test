@@ -1,0 +1,14 @@
+#!/bin/bash
+#G.PDgNVRjpTn6VDcG75pUclQ.DI_XZ2q59b03AKuHvoFbCvfkC2_W1pUhu8jDtGbfDVs
+
+PRIMARY_DB=$(mongo --authenticationDatabase admin -u social27 -p SumM3r27Hot --eval "printjson(rs.isMaster().primary)"|tail -n 1)
+echo "db set to $PRIMARY_DB"
+
+if [ "$PRIMARY_DB" != "mongodb-prod-uae-01.social27.com:27017" ]; then
+          echo "Primary database is not mongodb-prod-uae-01.social27.com. Sending email..."
+          subject="Primary Database change"
+          message="Primary database is not mongodb-prod-uae-01.social27.com, and it is set to $PRIMARY_DB"
+          recipient="pankaj@social27.com","dhanrajsingh@social27.com","gsingh@social27.com","dsingh@social27.com","bally@social27.com"
+          echo "$message"|mail -s "$subject" "$recipient"
+
+fi
