@@ -1,0 +1,82 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- pre-prod
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation for Non Admin API
+  dockerRegistryServiceConnection_NonAdmin: 'f6a5dae7-c695-49b7-b74a-e8afd7767020'
+  imageRepository_NonAdmin: 'evntusrmcrst'
+  dockerfilePath_NonAdmin: '**/NonAdmin.Dockerfile'
+  imagePullSecret_NonAdmin: 'social27acr88c5-auth'
+
+  # Container registry service connection established during pipeline creation for Admin API
+  dockerRegistryServiceConnection_Admin: 'f6a5dae7-c695-49b7-b74a-e8afd7767020'
+  imageRepository_Admin: 'evntusrmcrstadm'
+  dockerfilePath_Admin: '**/Admin.Dockerfile'
+  imagePullSecret_Admin: 'social27acr-auth-evesvcusr'
+
+  # Common Variables
+  containerRegistry: 'social27hivegpt.azurecr.io'
+  tag: '$(Build.BuildId)'
+  args: '--build-arg TOKEN=$(System.AccessToken)'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+  
+  # Name of the new namespace being created to deploy the PR changes.
+  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
+
+stages:
+- stage: Build_And_Push
+  displayName: Prepare Container Image
+  jobs:  
+  - job: Build_And_Push_Docker_Images
+    displayName: Build and Push Container Image
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build:Events-User
+      inputs:
+        command: 'build'
+        containerRegistry: $(dockerRegistryServiceConnection_NonAdmin)
+        repository: $(imageRepository_NonAdmin)
+        dockerfile: $(dockerfilePath_NonAdmin)
+        arguments: $(args)
+        tags: '$(tag)'
+
+    - task: Docker@2
+      displayName: Build:Admin-Events-User
+      inputs:
+        command: 'build'
+        containerRegistry: $(dockerRegistryServiceConnection_Admin)
+        repository: $(imageRepository_Admin)
+        dockerfile: $(dockerfilePath_Admin)
+        arguments: $(args)
+        tags: '$(tag)'
+    
+    - task: Docker@2
+      displayName: Push:Events-User
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection_NonAdmin)'
+        repository: '$(imageRepository_NonAdmin)'
+        command: 'push'
+        tags: '$(tag)' 
+    
+    - task: Docker@2
+      displayName: Push:Admin-Events-User
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection_Admin)'
+        repository: '$(imageRepository_Admin)'
+        command: 'push'
+        tags: '$(tag)'
+
+    - upload: manifests
+      artifact: manifests
