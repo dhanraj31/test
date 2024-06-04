@@ -1,0 +1,56 @@
+apiVersion : apps/v1
+kind: Deployment
+metadata:
+  name: eventsserviceadminapi
+  labels:
+    app: eventsserviceadminapi 
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  selector:
+    matchLabels:
+      app: eventsserviceadminapi
+  template:
+    metadata:
+      labels:
+        app: eventsserviceadminapi 
+    spec:
+      containers:
+        - name: eventsserviceadminapi 
+          image: social27hivegpt.azurecr.io/eventsserviceadminapi
+          ports:
+          - containerPort: 443
+          - containerPort: 80
+          resources:
+            limits:
+              memory: 1000Mi
+              cpu: 500m
+            requests:
+              memory: 1000Mi
+              cpu: 500m
+          livenessProbe:
+            tcpSocket:
+            #httpGet:
+              #path: /api/health
+              port: 443
+            initialDelaySeconds: 20
+            timeoutSeconds: 630
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 5
+          readinessProbe:
+            tcpSocket:
+            #httpGet:
+              #path: /api/health
+              port: 443
+            initialDelaySeconds: 20
+            timeoutSeconds: 630
+            periodSeconds: 60
+            successThreshold: 1
+            failureThreshold: 5
+      nodeSelector:
+        agentpool: litepreprod
