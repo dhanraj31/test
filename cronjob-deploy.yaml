@@ -1,0 +1,22 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: smartai-lite-etl-cronjob
+spec:
+  schedule: "*/5 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          nodeSelector:
+            agentpool: liteprod
+          containers:
+          - name: smartai-lite-etl-cronjob
+            image: social27hivegpt.azurecr.io/smartai-lite:latest
+            # envFrom:
+            #     - configMapRef:
+            #         name: leadsens-configmap
+            #     - secretRef:
+            #         name: leadsens-secret
+            command: ["python3", "db-sync.py"]
+          restartPolicy: OnFailure
